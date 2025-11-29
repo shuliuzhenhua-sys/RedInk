@@ -49,7 +49,8 @@ export async function generateOutline(
       {
         headers: {
           'Content-Type': 'multipart/form-data'
-        }
+        },
+        timeout: 300000 // 5 minutes
       }
     )
     return response.data
@@ -58,7 +59,7 @@ export async function generateOutline(
   // 无图片，使用 JSON
   const response = await axios.post<OutlineResponse>(`${API_BASE_URL}/outline`, {
     topic
-  })
+  }, { timeout: 300000 }) // 5 minutes
   return response.data
 }
 
