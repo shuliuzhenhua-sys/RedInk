@@ -12,6 +12,7 @@ export interface OutlineResponse {
   success: boolean
   outline?: string
   pages?: Page[]
+  full_text?: string
   error?: string
 }
 
@@ -255,6 +256,7 @@ export interface HistoryDetail {
   outline: {
     raw: string
     pages: Page[]
+    full_text?: string
   }
   images: {
     task_id: string | null
@@ -267,7 +269,7 @@ export interface HistoryDetail {
 // 创建历史记录
 export async function createHistory(
   topic: string,
-  outline: { raw: string; pages: Page[] },
+  outline: { raw: string; pages: Page[]; full_text?: string },
   taskId?: string
 ): Promise<{ success: boolean; record_id?: string; error?: string }> {
   const response = await axios.post(`${API_BASE_URL}/history`, {

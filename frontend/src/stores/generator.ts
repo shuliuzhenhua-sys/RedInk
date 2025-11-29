@@ -20,6 +20,7 @@ export interface GeneratorState {
   outline: {
     raw: string
     pages: Page[]
+    full_text?: string
   }
 
   // 生成进度
@@ -105,9 +106,10 @@ export const useGeneratorStore = defineStore('generator', {
     },
 
     // 设置大纲
-    setOutline(raw: string, pages: Page[]) {
+    setOutline(raw: string, pages: Page[], fullText?: string) {
       this.outline.raw = raw
       this.outline.pages = pages
+      this.outline.full_text = fullText
       this.stage = 'outline'
     },
 

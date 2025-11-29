@@ -95,7 +95,7 @@ class OutlineService:
         with open(prompt_path, "r", encoding="utf-8") as f:
             return f.read()
 
-    def _parse_outline(self, outline_text: str) -> List[Dict[str, Any]]:
+    def _parse_outline(self, outline_text: str) -> Dict[str, Any]:
         # 按 <page> 分割页面（兼容旧的 --- 分隔符）
         if '<page>' in outline_text:
             pages_raw = re.split(r'<page>', outline_text, flags=re.IGNORECASE)
@@ -104,6 +104,7 @@ class OutlineService:
             pages_raw = outline_text.split("---")
 
         pages = []
+        full_text = ""
 
         for index, page_text in enumerate(pages_raw):
             page_text = page_text.strip()
@@ -118,16 +119,26 @@ class OutlineService:
                     "封面": "cover",
                     "内容": "content",
                     "总结": "summary",
+                    "全文": "full_text",
                 }
                 page_type = type_mapping.get(type_cn, "content")
 
+            # 如果是全文，单独存储，不作为页面
+            if page_type == "full_text":
+                # 去掉 [全文] 标记
+                full_text = re.sub(r"^\[全文\]\s*", "", page_text, flags=re.MULTILINE).strip()
+                continue
+
             pages.append({
-                "index": index,
+                "index": len(pages),
                 "type": page_type,
                 "content": page_text
             })
 
-        return pages
+        return {
+            "pages": pages,
+            "full_text": full_text
+        }
 
     def generate_outline(
         self,
@@ -161,13 +172,16 @@ class OutlineService:
             )
 
             logger.debug(f"API 返回文本长度: {len(outline_text)} 字符")
-            pages = self._parse_outline(outline_text)
+            parsed_result = self._parse_outline(outline_text)
+            pages = parsed_result["pages"]
+            full_text = parsed_result["full_text"]
             logger.info(f"大纲解析完成，共 {len(pages)} 页")
 
             return {
                 "success": True,
                 "outline": outline_text,
                 "pages": pages,
+                "full_text": full_text,
                 "has_images": images is not None and len(images) > 0
             }
 

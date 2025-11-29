@@ -364,7 +364,7 @@ const handleGenerate = async () => {
 
     if (result.success && result.pages) {
       store.setTopic(topic.value.trim())
-      store.setOutline(result.outline || '', result.pages)
+      store.setOutline(result.outline || '', result.pages, result.full_text)
       store.recordId = null  // 重置历史记录ID,确保创建新记录
 
       // 如果有上传图片，保存到 store 中用于图片生成

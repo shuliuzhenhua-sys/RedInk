@@ -221,7 +221,8 @@ onMounted(async () => {
     try {
       const result = await createHistory(store.topic, {
         raw: store.outline.raw,
-        pages: store.outline.pages
+        pages: store.outline.pages,
+        full_text: store.outline.full_text
       })
       if (result.success && result.record_id) {
         store.recordId = result.record_id

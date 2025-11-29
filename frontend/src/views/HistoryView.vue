@@ -251,10 +251,32 @@
     <div v-if="showOutlineModal && viewingRecord" class="outline-modal-overlay" @click="showOutlineModal = false">
       <div class="outline-modal-content" @click.stop>
         <div class="outline-modal-header">
-          <h3>完整大纲</h3>
-          <button class="close-icon" @click="showOutlineModal = false">×</button>
+      <h3>小红书文案导出</h3>
+      <button class="close-icon" @click="showOutlineModal = false">×</button>
+    </div>
+    <div class="outline-modal-body">
+      <!-- Title Copy Section -->
+      <div class="copy-section">
+        <div class="section-label">标题</div>
+        <div class="copy-box">
+           <input type="text" :value="viewingRecord.title" readonly />
+           <button class="btn-copy" @click="copyText(viewingRecord.title)">复制</button>
         </div>
-        <div class="outline-modal-body">
+      </div>
+
+      <!-- Full Content Copy Section -->
+      <div class="copy-section">
+        <div class="section-label">正文内容</div>
+        <div class="copy-box">
+           <textarea readonly rows="12">{{ viewingRecord.outline.full_text || getAllContent(viewingRecord.outline.pages) }}</textarea>
+           <button class="btn-copy" @click="copyText(viewingRecord.outline.full_text || getAllContent(viewingRecord.outline.pages))">复制</button>
+        </div>
+      </div>
+
+      <!-- Detailed Outline (Collapsible) -->
+      <details class="outline-details">
+        <summary>查看分页详情</summary>
+        <div style="margin-top: 16px;">
           <div v-for="(page, idx) in viewingRecord.outline.pages" :key="idx" class="outline-page-card">
             <div class="outline-page-card-header">
               <span class="page-badge">P{{ idx + 1 }}</span>
@@ -264,6 +286,8 @@
             <div class="outline-page-card-content">{{ page.content }}</div>
           </div>
         </div>
+      </details>
+    </div>
       </div>
     </div>
 
@@ -412,6 +436,22 @@ const copyOriginalInput = async () => {
   try {
     await navigator.clipboard.writeText(viewingRecord.value.outline.raw)
     alert('原始输入已复制到剪贴板')
+  } catch (e) {
+    alert('复制失败，请手动复制')
+  }
+}
+
+// Helper to get all content joined
+const getAllContent = (pages: any[]) => {
+  if (!pages || !Array.isArray(pages)) return ''
+  return pages.map(p => p.content).join('\n\n')
+}
+
+// Helper to copy text
+const copyText = async (text: string) => {
+  try {
+    await navigator.clipboard.writeText(text)
+    alert('已复制到剪贴板')
   } catch (e) {
     alert('复制失败，请手动复制')
   }
@@ -1213,5 +1253,78 @@ onMounted(async () => {
   white-space: pre-wrap;
   word-break: break-word;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+}
+
+/* Copy Section Styles */
+.copy-section {
+  margin-bottom: 24px;
+}
+
+.section-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.copy-box {
+  display: flex;
+  gap: 12px;
+}
+
+.copy-box input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: white;
+  font-size: 14px;
+  color: #1f2937;
+}
+
+.copy-box textarea {
+  flex: 1;
+  padding: 12px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: white;
+  font-size: 14px;
+  color: #1f2937;
+  line-height: 1.6;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.btn-copy {
+  flex-shrink: 0;
+  padding: 0 20px;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  color: #374151;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-copy:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: #fdf2f8;
+}
+
+.outline-details summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--primary);
+  padding: 8px 0;
+  user-select: none;
+}
+
+.outline-details summary:hover {
+  opacity: 0.8;
 }
 </style>
